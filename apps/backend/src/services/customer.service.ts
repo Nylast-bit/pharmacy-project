@@ -53,9 +53,20 @@ export class CustomerService {
       .select('*')
       .eq('correo', correo)
       .single()
-    
-    if (error) return null
-    return data
+
+    if (error || !data) return null
+    return data as Customer
+  }
+
+  async findByPhone(telefono: string): Promise<Customer | null> {
+    const { data, error } = await supabase
+      .from('clientes')
+      .select('*')
+      .eq('telefono', telefono)
+      .single()
+
+    if (error || !data) return null
+    return data as Customer
   }
 
   async update(id: number, customerData: CustomerUpdate): Promise<Customer> {

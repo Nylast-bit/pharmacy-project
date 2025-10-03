@@ -169,7 +169,7 @@ export default function ProductList() {
                       onClick={() => goToPage(page)}
                       className={`px-4 py-2 rounded-lg transition ${
                         currentPage === page
-                          ? "bg-blue-600 text-white"
+                          ? "bg-[#00a2b9] text-white"
                           : "border hover:bg-gray-100"
                       }`}
                     >

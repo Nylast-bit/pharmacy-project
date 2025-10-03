@@ -63,7 +63,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                   {/* Info */}
                   <div className="flex-1">
                     <h3 className="font-semibold text-sm">{item.nombre}</h3>
-                    <p className="text-blue-600 font-bold mt-1">
+                    <p className="text-[#00a2b9] font-bold mt-1">
                       ${item.precio.toFixed(2)}
                     </p>
 
@@ -104,14 +104,14 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
           <div className="border-t p-4 space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold">Total:</span>
-              <span className="text-2xl font-bold text-blue-600">
+              <span className="text-2xl font-bold text-[#00a2b9]">
                 ${getTotalPrice().toFixed(2)}
               </span>
             </div>
 
             <button
               onClick={onCheckout}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
+              className="w-full bg-[#00a2b9] hover:bg-[#008899] text-white py-3 rounded-lg font-semibold transition"
             >
               Checkout
             </button>

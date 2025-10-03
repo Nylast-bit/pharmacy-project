@@ -68,6 +68,37 @@ export class CustomerController {
     }
   }
 
+  async findByEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.params
+      const customer = await customerService.findByEmail(email)
+
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" })
+      }
+
+      res.json(customer)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async findByPhone(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { phone } = req.params
+      const customer = await customerService.findByPhone(phone)
+
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" })
+      }
+
+      res.json(customer)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+
   async findWithOrders(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params
