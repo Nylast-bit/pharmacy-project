@@ -29,7 +29,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5" />
-            <h2 className="text-xl font-bold">Carrito ({cart.length})</h2>
+            <h2 className="text-xl font-bold">Cart ({cart.length})</h2>
           </div>
           <button
             onClick={onClose}
@@ -44,7 +44,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-500">
               <ShoppingBag className="w-16 h-16 mb-4 opacity-50" />
-              <p className="text-lg">Tu carrito está vacío</p>
+              <p className="text-lg">Your cart is empty.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -113,7 +113,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
               onClick={onCheckout}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
             >
-              Hacer Pedido
+              Checkout
             </button>
           </div>
         )}

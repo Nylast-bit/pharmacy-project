@@ -126,19 +126,19 @@ export default function ProductList() {
       </div>
 
       {/* Products Grid */}
-        <div className="w-[70%]">
+      <div className="w-[70%]">
         {products.length === 0 ? (
-            <p className="text-center text-gray-500 py-12">No products found</p>
+          <p className="text-center text-gray-500 py-12">No products found</p>
         ) : (
-            <>
-            <div className="max-h-[900px] overflow-y-auto pr-2 mb-8 scroll-smooth">
-                <div
+          <>
+            <div className="max-h-[1300px] overflow-y-auto pr-2 mb-12 scroll-smooth">
+              <div
                 className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 transition-opacity duration-300 ${
-                    searching ? "opacity-50" : "opacity-100"
+                  searching ? "opacity-50" : "opacity-100"
                 }`}
-                >
+              >
                 {currentProducts.map((p) => (
-                    <ProductCard
+                  <ProductCard
                     key={p.id_producto}
                     id_producto={p.id_producto}
                     nombre={p.nombre}
@@ -146,25 +146,61 @@ export default function ProductList() {
                     precio={p.precio}
                     imagen_url={p.imagen_url}
                     onSelect={handleSelect}
-                    />
+                  />
                 ))}
-                </div>
+              </div>
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2">
-                {/* ... la paginación igualita ... */}
-                </div>
-            )}
+            {/* Pagination - siempre visible */}
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <div className="flex gap-2">
+                {totalPages > 0 ? (
+                  Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => goToPage(page)}
+                      className={`px-4 py-2 rounded-lg transition ${
+                        currentPage === page
+                          ? "bg-blue-600 text-white"
+                          : "border hover:bg-gray-100"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))
+                ) : (
+                  <button
+                    className="px-4 py-2 rounded-lg bg-blue-600 text-white"
+                    disabled
+                  >
+                    1
+                  </button>
+                )}
+              </div>
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="p-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
 
             <p className="text-center text-gray-600 mt-4">
-                Showing {startIndex + 1}-{Math.min(endIndex, products.length)} of {products.length} products
+              Showing {startIndex + 1}-{Math.min(endIndex, products.length)} of {products.length} products
             </p>
-            </>
+          </>
         )}
-        </div>
-
+      </div>
     </div>
   )
 }

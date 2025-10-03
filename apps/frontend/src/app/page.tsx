@@ -5,15 +5,18 @@ import Navbar from "./components/Navbar"
 import HeroSection from "./components/HeroSection"
 import ProductList from "./components/ProductList"
 import ShoppingCart from "./components/ShoppingCart"
+import CheckoutModal from "./components/CheckoutModal"
 import WhyChooseUs from "./components/WhyChooseUs"
+import ContactForm from "./components/ContactForm"
+import Footer from "./components/Footer"
 
 export default function Home() {
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
   const handleCheckout = () => {
     setIsCartOpen(false)
-    // Aquí después implementaremos el modal de orden
-    console.log("Proceeding to checkout...")
+    setIsCheckoutOpen(true)
   }
 
   return (
@@ -23,11 +26,21 @@ export default function Home() {
         <HeroSection />
         <ProductList />
         <WhyChooseUs />
+        <ContactForm/>
+        <Footer/>
       </main>
+
+      {/* Carrito lateral */}
       <ShoppingCart 
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         onCheckout={handleCheckout}
+      />
+
+      {/* Modal de checkout con pasos */}
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
       />
     </>
   )

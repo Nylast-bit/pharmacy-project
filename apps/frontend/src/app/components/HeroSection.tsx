@@ -4,8 +4,9 @@ import Image from "next/image"
 import Link from "next/link"
 
 export default function HeroSection() {
+  
   return (
-    <section className="relative w-full h-[80vh] flex items-center justify-center bg-gray-100 overflow-hidden">
+    <section className="relative w-full h-[80vh] flex items-center justify-center bg-gray-100 overflow-hidden" id="hero">
       {/* Imagen de fondo (placeholder) */}
       <div className="absolute inset-0">
         <Image
@@ -27,7 +28,14 @@ export default function HeroSection() {
         </p>
         <Link
           href="#productos"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition-colors"
+          className="px-6 py-3 bg-[#00a2b9] hover:bg-[#008899] rounded-lg text-white font-semibold transition-colors"
+          onClick={(e) => {
+            e.preventDefault()
+            const element = document.getElementById("product-list-top")
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth" })
+            }
+          }}
         >
           View Products
         </Link>

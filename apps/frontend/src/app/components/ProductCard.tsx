@@ -45,7 +45,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Botón */}
       <button
         onClick={() => onSelect(id_producto)}
-        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+        className="mt-4 bg-[#00a2b9]  text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
       >
         Añadir al pedido
       </button>
