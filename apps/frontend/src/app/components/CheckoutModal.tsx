@@ -1,9 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useCart } from "../context/CartContext"
 import { API_BASE_URL } from "@/lib/config"
 import { X, User, Mail, Phone, MapPin, ShoppingBag, CheckCircle } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface CheckoutModalProps {
   isOpen: boolean
@@ -21,10 +31,43 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const [error, setError] = useState("")
   const [orderNumber, setOrderNumber] = useState<number | null>(null)
 
-  if (!isOpen) return null
+  // 👇 Nuevo estado para lookup
+  const [idCliente, setIdCliente] = useState<number | null>(null)
+  const [possibleCustomer, setPossibleCustomer] = useState<any>(null)
+  const [showDialog, setShowDialog] = useState(false)
+
+  // Debounce email/phone lookup
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      try {
+        if (correo) {
+          const res = await fetch(`${API_BASE_URL}/api/customers/email/${correo}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data) {
+              setPossibleCustomer(data)
+              setShowDialog(true)
+            }
+          }
+        } else if (telefono) {
+          const res = await fetch(`${API_BASE_URL}/api/customers/phone/${telefono}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data) {
+              setPossibleCustomer(data)
+              setShowDialog(true)
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Lookup error", err)
+      }
+    }, 500)
+
+    return () => clearTimeout(timeout)
+  }, [correo, telefono])
 
   const handlePlaceOrder = async () => {
-    // Validación de todos los campos
     if (!nombre || !correo || !telefono || !direccion) {
       setError("All fields are required before placing the order.")
       return
@@ -34,27 +77,32 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
       setLoading(true)
       setError("")
 
-      // 1️⃣ Crear cliente
-      const resCustomer = await fetch(`${API_BASE_URL}/api/customers`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, correo, telefono, direccion }),
-      })
+      let customerId = idCliente
 
-      if (!resCustomer.ok) {
-        const data = await resCustomer.json()
-        throw new Error(data.error || "Error creating customer")
+      // 🆕 Si no tenemos un cliente existente, lo creamos
+      if (!customerId) {
+        const resCustomer = await fetch(`${API_BASE_URL}/api/customers`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre, correo, telefono, direccion }),
+        })
+
+        if (!resCustomer.ok) {
+          const data = await resCustomer.json()
+          throw new Error(data.error || "Error creating customer")
+        }
+        const customer = await resCustomer.json()
+        customerId = customer.id_cliente
       }
-      const customer = await resCustomer.json()
 
       // 2️⃣ Crear orden
       const resOrder = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id_cliente: customer.id_cliente,
+          id_cliente: customerId,
           total: getTotalPrice(),
-          estatus: "pendiente",
+          estatus: "pending",
           notificado: false,
         }),
       })
@@ -68,7 +116,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id_pedido: order.id_pedido,
-          details: cart.map(item => ({
+          details: cart.map((item) => ({
             id_producto: item.id_producto,
             cantidad: item.quantity,
             precio_unitario: item.precio,
@@ -85,8 +133,39 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     }
   }
 
+  // Confirmar cliente existente
+  const confirmExisting = () => {
+    if (possibleCustomer) {
+      setNombre(possibleCustomer.nombre)
+      setCorreo(possibleCustomer.correo)
+      setTelefono(possibleCustomer.telefono)
+      setDireccion(possibleCustomer.direccion || "")
+      setIdCliente(possibleCustomer.id_cliente)
+    }
+    setShowDialog(false)
+  }
+
+  if (!isOpen) return null
+
   return (
     <>
+      {/* Elegante popup de confirmación */}
+      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Es usted {possibleCustomer?.nombre}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Hemos encontrado un cliente registrado con este correo/teléfono. 
+              ¿Desea usar esta información para su pedido?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDialog(false)}>No</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmExisting}>Sí</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Overlay */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
@@ -256,22 +335,6 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
           )}
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
-        }
-      `}</style>
     </>
   )
 }
