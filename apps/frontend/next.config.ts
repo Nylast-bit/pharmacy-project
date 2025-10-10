@@ -10,12 +10,11 @@ const nextConfig = {
     ],
   },
   eslint: {
-    // ⚠️ Solo para desarrollo/pruebas - NO para producción
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // ⚠️ Solo para desarrollo/pruebas - NO para producción
     ignoreBuildErrors: true,
   },
 }
 
+module.exports = nextConfig
