@@ -35,6 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
       </div>
 
+
       {/* Info */}
       <h3 className="text-lg font-semibold">{nombre}</h3>
       <p className="text-sm text-gray-600 flex-1">{descripcion}</p>

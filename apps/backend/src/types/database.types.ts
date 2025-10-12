@@ -54,6 +54,7 @@ export interface Database {
           id_cliente: number
           fecha_pedido: string | null
           estatus: string
+          trackingnumber: string | null
           total: number | null
           notificado: boolean
         }
@@ -61,12 +62,14 @@ export interface Database {
           id_cliente: number
           total?: number
           estatus?: string
+          trackingnumber?: string | null
           notificado?: boolean
         }
         Update: {
           id_cliente?: number
           total?: number
           estatus?: string
+          trackingnumber?: string | null
           notificado?: boolean
         }
       }

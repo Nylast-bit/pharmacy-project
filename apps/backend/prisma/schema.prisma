@@ -36,6 +36,7 @@ model pedidos {
   estatus        String           @default("pendiente")
   total          Decimal?         @db.Decimal(10, 2)
   notificado     Boolean          @default(false)
+  trackingnumber String?
   cliente        clientes         @relation(fields: [id_cliente], references: [id_cliente])
   detalle_pedido detalle_pedido[]
 }
