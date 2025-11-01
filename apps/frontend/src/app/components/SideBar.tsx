@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, Send, LogOut } from "lucide-react";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -11,6 +11,7 @@ const Sidebar = () => {
     { name: "Orders", icon: <ShoppingCart size={20} />, path: "/admin/orders" },
     { name: "Products", icon: <Package size={20} />, path: "/admin/products" },
     { name: "Customers", icon: <Users size={20} />, path: "/admin/customers" },
+    { name: "Notifications", icon: <Send size={20} />, path: "/admin/notifications" },
   ];
 
   const handleLogout = () => {

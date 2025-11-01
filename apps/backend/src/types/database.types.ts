@@ -9,6 +9,7 @@ export interface Database {
           telefono: string | null
           direccion: string | null
           fecha_creacion: string | null
+          fecha_ultima_promocion: string | null
         }
         Insert: {
           nombre: string
@@ -21,6 +22,7 @@ export interface Database {
           correo?: string
           telefono?: string | null
           direccion?: string | null
+          fecha_ultima_promocion: string | null
         }
       }
       productos: {

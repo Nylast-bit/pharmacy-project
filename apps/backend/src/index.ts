@@ -7,6 +7,7 @@ import productRoutes from './routes/product.routes'
 import customerRoutes from './routes/customer.routes'
 import orderRoutes from './routes/order.routes'
 import orderDetailRoutes from './routes/orderDetail.routes'
+import emailRoutes from './routes/email.routes';
 import { errorHandler } from './middlewares/errorHandler'
 
 
@@ -21,6 +22,7 @@ app.use('/api/products', productRoutes)
 app.use('/api/customers', customerRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/order-details', orderDetailRoutes)
+app.use('/api/email', emailRoutes)
 
 // Health check
 app.get('/health', (req, res) => {

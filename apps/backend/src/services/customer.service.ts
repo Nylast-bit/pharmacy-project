@@ -6,6 +6,7 @@ type Customer = Database['public']['Tables']['clientes']['Row']
 type CustomerInsert = Database['public']['Tables']['clientes']['Insert']
 type CustomerUpdate = Database['public']['Tables']['clientes']['Update']
 
+
 export class CustomerService {
   async create(customerData: CustomerInsert): Promise<Customer> {
     const { data, error } = await (supabase
@@ -31,6 +32,29 @@ export class CustomerService {
     
     if (error) throw new AppError(error.message, 500)
     return data || []
+  }
+
+
+  async getLatestUnnotified(limit: number = 100): Promise<Customer[]> {
+    const { data, error } = await (supabase
+      .from('clientes') as any)
+      .select('*')
+      .is('fecha_ultima_promocion', null) // <-- LÓGICA CAMBIADA
+      .order('id_cliente', { ascending: false }) // <-- Obtiene los más nuevos
+      .limit(limit);
+
+    if (error) throw new AppError(error.message, 400);
+    return data || [];
+  }
+
+
+  async getByIds(ids: number[]): Promise<Customer[]> {
+    const { data, error } = await (supabase
+      .from('clientes') as any)
+      .select('*')
+      .in('id_cliente', ids);
+    if (error) throw new AppError(error.message, 400);
+    return data || [];
   }
 
   async findById(id: number): Promise<Customer> {
@@ -126,4 +150,28 @@ export class CustomerService {
     
     return data
   }
+
+  async resetAllNotified(): Promise<Customer[]> {
+    const { data, error } = await (supabase
+      .from('clientes') as any)
+      .update({ fecha_ultima_promocion: null }) // <-- LÓGICA CAMBIADA
+      .not('fecha_ultima_promocion', 'is', null) // Solo resetea los que no son null
+      .select();
+
+    if (error) throw new AppError(error.message, 400);
+    return data;
+  }
+
+  async setPromotionSent(clientIds: number[]): Promise<Customer[]> {
+    const now = new Date().toISOString(); // Fecha y hora actual en UTC
+    const { data, error } = await (supabase
+      .from('clientes') as any)
+      .update({ fecha_ultima_promocion: now }) // <-- LÓGICA CAMBIADA
+      .in('id_cliente', clientIds)
+      .select();
+
+    if (error) throw new AppError(error.message, 400);
+    return data;
+  }
 }
+
