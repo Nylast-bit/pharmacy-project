@@ -48,6 +48,12 @@ router.post(
   emailController.handleResetNotifications.bind(emailController)
 );
 
+router.post(
+  '/send-to-emails-list',
+  // (tus middlewares de autenticación, si los tienes)
+  (req, res, next) => emailController.handleSendToCustomList(req, res, next)
+);
+
 /**
  * Endpoint 4: Prueba simple de envío
  * Recibe: {}

@@ -133,6 +133,34 @@ export class EmailController {
     }
   }
 
+
+  public async handleSendToCustomList(req: Request, res: Response, next: NextFunction) {
+    try {
+      // 1. Extraer el body.
+      const { emails, subject, htmlBody } = req.body;
+
+      // 2. Validar que los campos básicos existan (siguiendo tu estilo)
+      if (!emails || !Array.isArray(emails) || emails.length === 0) {
+        throw new AppError('El campo "emails" es requerido y debe ser un array no vacío', 400);
+      }
+      if (!subject) throw new AppError('El campo "subject" es requerido', 400);
+      if (!htmlBody) throw new AppError('El campo "htmlBody" es requerido', 400);
+
+      // 3. Enviar el correo directamente.
+      // No hay validación contra la BD.
+      // No hay actualización de 'fecha_ultima_promocion'.
+      await this.emailService.sendBatchEmail(emails, subject, htmlBody);
+
+      // 4. Enviar respuesta simple
+      res.status(200).json({
+        message: `Promoción enviada exitosamente a ${emails.length} correos.`,
+      });
+
+    } catch (error) {
+      next(error);
+    }
+  }
+
   /**
    * (Tu endpoint de prueba original)
    */
@@ -147,4 +175,6 @@ export class EmailController {
       next(error);
     }
   }
+
+  
 }

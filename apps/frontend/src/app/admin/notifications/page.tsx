@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, FormEvent } from "react";
+import { useEffect, useState, useMemo, FormEvent, ChangeEvent } from "react";
 // 🔽 Corrección: Se usa una ruta relativa en lugar de un alias
 import { API_BASE_URL } from "../../../lib/config";
 import {
@@ -12,7 +12,13 @@ import {
   Mail,
   Calendar,
   Send,
+  AlertCircle,
+  CheckCircle2,
   RefreshCcw,
+  MailPlus, // NUEVO: Icono para el botón "Upload Email"
+  X,         // NUEVO: Icono para cerrar el modal
+  FileText, // NUEVO: Icono para la subida de archivo
+  ClipboardPaste,
 } from "lucide-react";
 
 // 1. Interfaz de Cliente actualizada con el nuevo campo
@@ -25,6 +31,8 @@ interface CustomerWithPromo {
   fecha_creacion: string;
   fecha_ultima_promocion: string | null; // El nuevo campo de la DB
 }
+
+
 
 export default function NotificationsPage() {
   // --- Estados de Datos ---
@@ -46,6 +54,12 @@ export default function NotificationsPage() {
   const [htmlBody, setHtmlBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [pastedEmails, setPastedEmails] = useState("");
+  const [uploadedEmailsList, setUploadedEmailsList] = useState<string[]>([]);
+  const [emailListWarning, setEmailListWarning] = useState<string | null>(null);
+  const [fileName, setFileName] = useState('');
+
 
   const itemsPerPage = 10;
 
@@ -147,7 +161,82 @@ export default function NotificationsPage() {
       setSelectedClientIds(new Set());
     }
   };
+  
+  /**
+   * Procesa un string (de un archivo o textarea) y extrae los correos.
+   */
+  const parseEmailText = (text: string) => {
+    // Regex para separar por saltos de línea, comas, espacios o punto y coma
+    const emails = text
+      .split(/[\n\s,;]+/) // Divide por múltiples separadores
+      .map(email => email.trim())
+      .filter(email => email.length > 0 && email.includes('@')); // Filtra válidos
+    
+    const uniqueEmails = Array.from(new Set(emails)); // Elimina duplicados
+    setUploadedEmailsList(uniqueEmails);
 
+    // Establece la advertencia si son más de 100
+    if (uniqueEmails.length > 100) {
+      setEmailListWarning(`Warning: You have added ${uniqueEmails.length} emails. This is more than 100.`);
+    } else {
+      setEmailListWarning(null);
+    }
+  };
+
+  const handlePastedEmailsChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setPastedEmails(e.target.value);
+    parseEmailText(e.target.value); // Procesa en tiempo real
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      setPastedEmails(text); // Pone el contenido del archivo en el textarea
+      parseEmailText(text); // Procesa el texto
+    };
+    reader.readAsText(file);
+    e.target.value = ""; // Resetea el input
+  };
+
+  const handleSendToCustomList = async () => {
+    // 1. Validar formulario principal
+    if (!subject || !htmlBody) {
+      setMessage({ type: 'error', text: 'Subject and Email Body are required.' });
+      setIsUploadModalOpen(false); 
+      return;
+    }
+    // 2. Validar lista de correos
+    if (uploadedEmailsList.length === 0) {
+      setEmailListWarning('No valid emails were found to send to.');
+      return;
+    }
+    // 3. Advertir si son > 100 (¡Cumpliendo tu requisito!)
+    if (uploadedEmailsList.length > 100) {
+      if (typeof window !== 'undefined' && !window.confirm(`${emailListWarning} Do you want to proceed anyway?`)) {
+        return; // El usuario canceló
+      }
+    }
+
+  await sendApiRequest(
+        'send-to-emails-list', // Asume un nuevo endpoint en tu API
+        { 
+          emails: uploadedEmailsList, // Envía el array de correos
+          subject, 
+          htmlBody 
+        },
+        `Email sent to ${uploadedEmailsList.length} custom emails.`
+      );
+
+      // 5. Limpiar y cerrar modal
+      setIsUploadModalOpen(false);
+      setUploadedEmailsList([]);
+      setPastedEmails("");
+      setEmailListWarning(null);
+  };
   // --- Lógica de Envío de Correo ---
 
   const sendApiRequest = async (endpoint: string, body: object, successMessage: string) => {
@@ -317,7 +406,16 @@ export default function NotificationsPage() {
               >
                 {isSubmitting ? 'Sending...' : 'Send to 100 Most Recent'}
               </button>
-              
+
+              <button
+                type="button"
+                onClick={() => setIsUploadModalOpen(true)}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all disabled:bg-gray-400"
+              >
+                Upload Email List
+              </button>
+
               <button
                 type="button"
                 onClick={handleResetNotifications}
@@ -464,6 +562,161 @@ export default function NotificationsPage() {
           )}
         </div>
       </div>
+      {isUploadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        
+        {/* Header */}
+        <div className="relative bg-gradient-to-r from-[#00a2b9] to-[#00c4d4] p-6">
+          <button
+            onClick={() => setIsUploadModalOpen(false)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200"
+            aria-label="Close modal"
+          >
+            <X size={20} />
+          </button>
+          
+          <div className="flex items-center text-white">
+            <div className="bg-white/20 rounded-2xl backdrop-blur-sm">
+              <MailPlus size={28} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold">Upload Email List</h3>
+              <p className="text-white/90 text-sm mt-1">Import your custom recipients</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="p-8 space-y-6">
+          
+          {/* Opción 1: Copy & Paste */}
+          <div className="space-y-3">
+            <label 
+              htmlFor="pastedEmails" 
+              className="flex items-center gap-2 text-sm font-semibold text-gray-700"
+            >
+              <div className="bg-[#00a2b9]/10 p-1.5 rounded-lg">
+                <ClipboardPaste size={16} className="text-[#00a2b9]" />
+              </div>
+              Paste Your Emails
+            </label>
+            
+            <textarea
+              id="pastedEmails"
+              rows={6}
+              value={pastedEmails}
+              onChange={handlePastedEmailsChange}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#00a2b9] focus:ring-4 focus:ring-[#00a2b9]/10 transition-all duration-200 resize-none text-sm placeholder:text-gray-400"
+              placeholder="Paste emails separated by commas, spaces, or line breaks&#10;&#10;Example:&#10;john@company.com, jane@company.com&#10;mike@example.com"
+            />
+          </div>
+          
+          {/* Divisor */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-4 text-sm font-medium text-gray-500">OR</span>
+            </div>
+          </div>
+          
+          {/* Opción 2: Upload File */}
+          <div className="space-y-3">
+            <label 
+              htmlFor="fileUpload" 
+              className="flex items-center gap-2 text-sm font-semibold text-gray-700"
+            >
+              <div className="bg-[#00a2b9]/10 p-1.5 rounded-lg">
+                <FileText size={16} className="text-[#00a2b9]" />
+              </div>
+              Upload .txt File
+            </label>
+            
+            <div className="relative">
+              <input
+                id="fileUpload"
+                type="file"
+                accept=".txt"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="fileUpload"
+                className="flex items-center justify-center gap-3 w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#00a2b9] hover:bg-[#00a2b9]/5 transition-all duration-200 cursor-pointer group"
+              >
+                <FileText size={20} className="text-gray-400 group-hover:text-[#00a2b9] transition-colors" />
+                <span className="text-sm text-gray-600 group-hover:text-[#00a2b9] font-medium transition-colors">
+                  {fileName || 'Click to browse or drag & drop'}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* Feedback Section */}
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-5 border border-gray-200">
+            <div className="flex items-start gap-3">
+              {uploadedEmailsList.length > 0 ? (
+                <CheckCircle2 size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
+              ) : (
+                <AlertCircle size={20} className="text-gray-400 mt-0.5 flex-shrink-0" />
+              )}
+              
+              <div className="flex-1">
+                <p className="text-sm text-gray-700 font-medium">
+                  {uploadedEmailsList.length > 0 ? (
+                    <>
+                      Found <span className="text-[#00a2b9] font-bold text-lg">{uploadedEmailsList.length}</span> valid email{uploadedEmailsList.length !== 1 ? 's' : ''}
+                    </>
+                  ) : (
+                    'No emails detected yet'
+                  )}
+                </p>
+                
+                {emailListWarning && (
+                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-800 flex items-start gap-2">
+                      <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                      <span>{emailListWarning}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end items-center gap-3 p-6 bg-gray-50 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={() => setIsUploadModalOpen(false)}
+            className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+          >
+            Cancel
+          </button>
+          
+          <button
+            type="button"
+            onClick={handleSendToCustomList}
+            disabled={isSubmitting || uploadedEmailsList.length === 0}
+            className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#00a2b9] to-[#00c4d4] rounded-xl hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200"
+          >
+            <Send size={18} />
+            {isSubmitting ? (
+              <>
+                <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                Sending...
+              </>
+            ) : (
+              `Send to ${uploadedEmailsList.length} Email${uploadedEmailsList.length !== 1 ? 's' : ''}`
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+      )}
     </div>
   );
 }
