@@ -5,7 +5,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export class EmailService {
   private resend: Resend;
-  private fromDomain = 'info@rsxsolutionmeds.com'; // Tu dominio verificado
+  private fromDomain = 'info@rxsolutionmeds.com'; // Tu dominio verificado
 
   constructor() {
     const apiKey = process.env.RESEND_API_KEY;
@@ -76,6 +76,7 @@ export class EmailService {
         success.push(email);
 
       } catch (error: any) {
+        console.error(`❌ Falló al enviar a: ${email}. Razón:`, error.message);
         failed.push({ email, error: error.message || 'Error desconocido' });
       }
 
