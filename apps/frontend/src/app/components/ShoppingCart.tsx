@@ -12,7 +12,7 @@ interface ShoppingCartProps {
 }
 
 export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCartProps) {
-  const { cart, updateQuantity, removeFromCart, getTotalPrice } = useCart()
+  const { cart, updateQuantity, removeFromCart, getTotalPrice, shippingFee } = useCart()
 
   if (!isOpen) return null
 
@@ -107,6 +107,9 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
               <span className="text-lg font-semibold">Total:</span>
               <span className="text-2xl font-bold text-[#00a2b9]">
                 ${getTotalPrice().toFixed(2)}
+              </span>
+              <span className="text-sm text-gray-500 block">
+                (Includes ${shippingFee.toFixed(2)} shipping fee)
               </span>
             </div>
 
