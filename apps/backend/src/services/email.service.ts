@@ -39,26 +39,49 @@ export class EmailService {
   }
 
   // (A FUTURO)
-  async sendBatchEmail(to: string[], subject: string, html: string): Promise<{ id: string }> {
-    
-    // Resend maneja el array en el campo 'to' de forma nativa.
-    const { data, error } = await this.resend.emails.send({
-      from: this.fromDomain,
-      to: to, // ¡Aquí pasamos el array completo!
-      subject: subject,
-      html: html,
+  async sendBatchEmail(
+    to: string[],
+    subject: string,
+    html: string
+  ): Promise<{ success: string[]; failed: { email: string; error: string }[] }> {
+    // Validación básica
+    if (!to || to.length === 0) {
+      throw new AppError('No se proporcionaron destinatarios', 400);
+    }
+
+    // Envía los correos en paralelo, uno por destinatario
+    const results = await Promise.allSettled(
+      to.map(email =>
+        this.resend.emails.send({
+          from: this.fromDomain,
+          to: email, // envío individual (sin copia a otros)
+          subject,
+          html,
+        })
+      )
+    );
+
+    // Procesamos resultados
+    const success: string[] = [];
+    const failed: { email: string; error: string }[] = [];
+
+    results.forEach((result, index) => {
+      const email = to[index];
+      if (result.status === 'fulfilled' && result.value?.data?.id) {
+        success.push(email);
+      } else {
+        const errorMessage =
+          result.status === 'rejected'
+            ? result.reason?.message || 'Error desconocido'
+            : result.value?.error?.message || 'Error desconocido';
+        failed.push({ email, error: errorMessage });
+      }
     });
 
-    if (error) {
-      console.error('Error de Resend (batch):', error);
-      throw new AppError(error.message, 400);
-    }
+    console.log(`✅ Enviados: ${success.length}, ❌ Fallidos: ${failed.length}`);
 
-    if (!data) {
-      throw new AppError('Resend no devolvió datos en el envío batch', 500);
-    }
-
-    return data; // Devuelve el ID del lote
+    return { success, failed };
   }
+
 
 }
