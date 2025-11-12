@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import React from "react"
+import { API_BASE_URL } from "@/lib/config"
 
 export interface ProductCardProps {
   id_producto: number
@@ -21,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onSelect,
 }) => {
   // imagen default local
-  const imageSrc = imagen_url || "/default-product.png"
+  const imageSrc = API_BASE_URL + imagen_url || "/default-product.png"
 
   return (
     <div className="rounded-xl border shadow-md hover:shadow-lg transition p-4 flex flex-col">

@@ -54,7 +54,7 @@ const ProductAdminCard: React.FC<ProductAdminCardProps> = ({
   }
 
   const product = { id_producto, nombre, descripcion, precio, stock, imagen_url }
-  const imageSrc = imagen_url || "/default-product.png"
+  const imageSrc = API_BASE_URL + imagen_url || "/default-product.png"
   const stockLow = stock < 10
 
   return (

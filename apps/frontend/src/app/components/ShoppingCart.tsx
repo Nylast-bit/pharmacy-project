@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useCart } from "../context/CartContext"
+import { API_BASE_URL } from "@/lib/config"
 import { X, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react"
 
 interface ShoppingCartProps {
@@ -53,7 +54,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                   {/* Image */}
                   <div className="relative w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0">
                     <Image
-                      src={item.imagen_url || "/default-product.png"}
+                      src={API_BASE_URL + item.imagen_url || "/default-product.png"}
                       alt={item.nombre}
                       fill
                       className="object-cover rounded-lg"
