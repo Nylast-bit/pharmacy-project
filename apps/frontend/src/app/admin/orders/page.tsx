@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react"
 import { ArrowUpDown, Eye, CheckCircle2, Clipboard, Package, Search, Filter, ChevronLeft, ChevronRight, Truck, X } from "lucide-react"
 import { API_BASE_URL } from "@/lib/config"
+import Image from "next/image"
 
 
 // --- Data Interfaces ---
@@ -385,12 +386,53 @@ export default function OrdersPage() {
                               )}
                               <div className="space-y-3">
                                 {selectedOrder.map((d) => (
-                                  <div key={d.id_detalle} className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
-                                    <div>
-                                      <p className="font-medium text-gray-900">{d.productos.nombre}</p>
-                                      <p className="text-sm text-gray-500">{d.cantidad} × ${d.precio_unitario.toFixed(2)}</p>
-                                    </div>
-                                    <p className="font-bold text-[#00a2b9] text-lg">${(d.cantidad * d.precio_unitario).toFixed(2)}</p>
+                                  <div 
+                                    key={d.id_detalle} 
+                                    className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0"
+                                  >
+                                    
+                                    {/* Usamos un ternario:
+                                      Si 'd.productos' existe (no es null), es un producto.
+                                      Si es 'null', es el envío.
+                                    */}
+
+                                    {d.productos ? (
+                                      // --- A. SI ES UN PRODUCTO ---
+                                      <>
+                                        <div className="flex items-center gap-3">
+                                          <Image 
+                                            src={`${API_BASE_URL}${d.productos.imagen_url || "/default-product.png"}`} 
+                                            alt={d.productos.nombre}
+                                            width={48}
+                                            height={48}
+                                            className="w-12 h-12 rounded-lg object-cover bg-gray-100"
+                                          />
+                                          <div>
+                                            <p className="font-medium text-gray-900">{d.productos.nombre}</p>
+                                            <p className="text-sm text-gray-500">{d.cantidad} × ${d.precio_unitario.toFixed(2)}</p>
+                                          </div>
+                                        </div>
+                                        <p className="font-bold text-[#00a2b9] text-lg">
+                                          ${(d.cantidad * d.precio_unitario).toFixed(2)}
+                                        </p>
+                                      </>
+                                    ) : (
+                                      // --- B. SI ES EL ENVÍO ---
+                                      <>
+                                        <div className="flex items-center gap-3">
+                                          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                            <Truck className="w-6 h-6 text-gray-500" />
+                                          </div>
+                                          <div>
+                                            <p className="font-medium text-gray-900">Costo de Envío</p>
+                                            <p className="text-sm text-gray-500">Tarifa fija</p>
+                                          </div>
+                                        </div>
+                                        <p className="font-bold text-[#00a2b9] text-lg">
+                                          ${d.precio_unitario.toFixed(2)}
+                                        </p>
+                                      </>
+                                    )}
                                   </div>
                                 ))}
                               </div>

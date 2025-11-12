@@ -3,27 +3,94 @@ import pool from '../config/db'
 import { Database } from '../types/database.types'
 import { AppError } from '../middlewares/errorHandler'
 
-type Order = Database['public']['Tables']['pedidos']['Row']
-type OrderInsert = Database['public']['Tables']['pedidos']['Insert']
-type OrderUpdate = Database['public']['Tables']['pedidos']['Update']
+type OrderDetailInsert = Database['public']['Tables']['detalle_pedido']['Insert'];
+type Order = Database['public']['Tables']['pedidos']['Row'];
+type OrderInsert = Database['public']['Tables']['pedidos']['Insert'];
+type OrderUpdate = Database['public']['Tables']['pedidos']['Update'];
+const SHIPPING_FEE = 60;
 
 export class OrderService {
-  async create(orderData: OrderInsert): Promise<Order> {
-    const { id_cliente, total, estatus, notificado, trackingnumber } = orderData
-    
-    // Asumimos que fecha_pedido tiene un DEFAULT en la BD.
-    const query = `
-      INSERT INTO pedidos (id_cliente, total, estatus, notificado, trackingnumber)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `
-    const params = [id_cliente, total, estatus, notificado, trackingnumber]
-    
+  async createOrderWithDetails(
+    orderData: Omit<OrderInsert, 'total' | 'estatus' | 'notificado'>, // Omitimos los campos que el backend debe controlar
+    orderDetails: Omit<OrderDetailInsert, 'id_pedido'>[] // Un array de productos
+  ): Promise<Order> {
+
+    // 1. Conectarse a la base de datos
+    const client = await pool.connect();
+
     try {
-      const { rows } = await pool.query(query, params)
-      return rows[0] as Order
+      // 2. INICIAR TRANSACCIÓN
+      await client.query('BEGIN');
+
+      // 3. Crear el Pedido principal
+      // (Nota: Insertamos con total=0. Lo actualizaremos al final)
+      const orderQuery = `
+        INSERT INTO pedidos (id_cliente, total, estatus, notificado)
+        VALUES ($1, 0, 'Pendiente', false)
+        RETURNING *;
+      `;
+      const orderRes = await client.query(orderQuery, [orderData.id_cliente]);
+      const newOrder = orderRes.rows[0] as Order;
+      const newOrderId = newOrder.id_pedido;
+
+      // 4. Insertar los PRODUCTOS
+      if (orderDetails && orderDetails.length > 0) {
+        // Prepara la consulta de inserción múltiple para los productos
+        const values: any[] = [];
+        const rows: string[] = [];
+        let paramIndex = 1;
+
+        for (const detail of orderDetails) {
+          rows.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
+          values.push(newOrderId, detail.id_producto, detail.cantidad, detail.precio_unitario);
+        }
+        
+        const detailQuery = `
+          INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
+          VALUES ${rows.join(', ')}
+        `;
+        await client.query(detailQuery, values);
+      }
+
+      // 5. ¡AÑADIR EL ENVÍO COMO UN OBJETO/FILA!
+      // Solo si el carrito no estaba vacío
+      if (orderDetails && orderDetails.length > 0) {
+        const shippingQuery = `
+          INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
+          VALUES ($1, NULL, 1, $2);
+        `;
+        // id_producto es NULL para identificarlo como el envío
+        await client.query(shippingQuery, [newOrderId, SHIPPING_FEE]);
+      }
+
+      // 6. CALCULAR EL TOTAL FINAL Y ACTUALIZAR EL PEDIDO
+      // Esta consulta suma TODO (productos + envío) en detalle_pedido
+      const totalQuery = `
+        UPDATE pedidos
+        SET total = (
+          SELECT SUM(cantidad * precio_unitario) 
+          FROM detalle_pedido 
+          WHERE id_pedido = $1
+        )
+        WHERE id_pedido = $1
+        RETURNING total;
+      `;
+      const totalRes = await client.query(totalQuery, [newOrderId]);
+      newOrder.total = totalRes.rows[0].total;
+
+      // 7. FINALIZAR TRANSACCIÓN
+      await client.query('COMMIT');
+
+      // 8. Devolver el pedido completo y correcto
+      return newOrder;
+
     } catch (error: any) {
-      throw new AppError(error.message, 400)
+      // 9. Si algo falla, deshacer todo
+      await client.query('ROLLBACK');
+      throw new AppError(error.message, 500);
+    } finally {
+      // 10. Liberar la conexión
+      client.release();
     }
   }
 

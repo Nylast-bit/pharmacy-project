@@ -4,7 +4,7 @@ import { OrderController } from '../controllers/order.controller'
 const router = Router()
 const orderController = new OrderController()
 
-router.post('/', orderController.create.bind(orderController))
+router.post('/', orderController.createOrder.bind(orderController))
 router.get('/', orderController.findAll.bind(orderController))
 router.get('/pending', orderController.getPending.bind(orderController))
 router.get('/unnotified', orderController.getUnnotified.bind(orderController))

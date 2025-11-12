@@ -1,32 +1,34 @@
 import { Request, Response, NextFunction } from 'express'
 import { OrderService } from '../services/order.service'
+import { AppError } from '../middlewares/errorHandler'
 
 const orderService = new OrderService()
 
 export class OrderController {
-  async create(req: Request, res: Response, next: NextFunction) {
+  async createOrder(req: Request, res: Response, next: NextFunction) {
     try {
-      // 👇 Se extrae 'trackingnumber' del cuerpo de la petición
-      const { id_cliente, total, estatus, notificado, trackingnumber } = req.body 
-        
-      if (!id_cliente) {
-        return res.status(400).json({
-          error: 'Field id_cliente is required'
-        })
+      // 1. Recibe los datos del frontend
+      const { orderData, orderDetails } = req.body;
+
+      // 2. Valida los datos (asegúrate de que no estén vacíos)
+      if (!orderData || !orderData.id_cliente) {
+        throw new AppError('Faltan datos del cliente', 400);
       }
-      
-      // 👇 Se pasa 'trackingnumber' al servicio para que lo guarde
-      const order = await orderService.create({
-        id_cliente,
-        total,
-        estatus,
-        notificado,
-        trackingnumber 
-      })
-      
-      res.status(201).json(order)
+      if (!orderDetails || orderDetails.length === 0) {
+        throw new AppError('El carrito está vacío', 400);
+      }
+
+      // 3. Llama al nuevo método "cerebro"
+      const newOrder = await orderService.createOrderWithDetails(
+        orderData, 
+        orderDetails
+      );
+
+      // 4. Devuelve el pedido creado
+      res.status(201).json(newOrder);
+
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
 

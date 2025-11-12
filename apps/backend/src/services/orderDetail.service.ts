@@ -172,7 +172,6 @@ export class OrderDetailService {
   }
 
   // --- MÉTODOS CON CAMBIOS LÓGICOS MÍNIMOS ---
-
   // ¡SIN CAMBIOS! 
   // Este método consume 'this.findByOrderId()', que ya refactorizamos.
   // La lógica de 'reduce' sigue siendo válida.
@@ -183,8 +182,8 @@ export class OrderDetailService {
       // Asumiendo que precio_unitario y cantidad están en el objeto 'detail'
       return sum + (detail.cantidad * detail.precio_unitario)
     }, 0)
-    
-    return total
+
+    return total 
   }
 
   async updateOrderTotal(id_pedido: number): Promise<void> {
