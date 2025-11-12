@@ -424,8 +424,8 @@ export default function OrdersPage() {
                                             <Truck className="w-6 h-6 text-gray-500" />
                                           </div>
                                           <div>
-                                            <p className="font-medium text-gray-900">Costo de Envío</p>
-                                            <p className="text-sm text-gray-500">Tarifa fija</p>
+                                            <p className="font-medium text-gray-900">Shipping Feedback</p>
+                                            <p className="text-sm text-gray-500">Fix</p>
                                           </div>
                                         </div>
                                         <p className="font-bold text-[#00a2b9] text-lg">

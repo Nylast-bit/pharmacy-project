@@ -26,7 +26,7 @@ export class OrderService {
       // (Nota: Insertamos con total=0. Lo actualizaremos al final)
       const orderQuery = `
         INSERT INTO pedidos (id_cliente, total, estatus, notificado)
-        VALUES ($1, 0, 'Pendiente', false)
+        VALUES ($1, 0, 'Pending', false)
         RETURNING *;
       `;
       const orderRes = await client.query(orderQuery, [orderData.id_cliente]);
