@@ -11,8 +11,17 @@ export interface CartItem {
   quantity: number
 }
 
+// --- 1. DEFINIMOS LA TARIFA FIJA ---
+// La exportamos para que otros componentes (como el resumen del carrito)
+// puedan leerla y mostrarla, sabiendo que no puede cambiar.
+export const SHIPPING_FEE = 60
+
+// --- 2. SIMPLIFICAMOS LA INTERFAZ ---
+// Eliminamos las funciones de añadir/quitar envío.
+// Añadimos 'shippingFee' para que los componentes puedan LEER la tarifa.
 interface CartContextType {
   cart: CartItem[]
+  shippingFee: number // <-- Es solo de lectura
   addToCart: (product: Omit<CartItem, "quantity">) => void
   removeFromCart: (id: number) => void
   updateQuantity: (id: number, quantity: number) => void
@@ -25,6 +34,9 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
+
+  // --- 3. ELIMINAMOS EL ESTADO (useState) DE ENVÍO ---
+  // (Ya no es necesario, es una constante)
 
   const addToCart = (product: Omit<CartItem, "quantity">) => {
     setCart((prev) => {
@@ -59,22 +71,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
     )
   }
 
+  // clearCart ahora solo limpia el carrito
   const clearCart = () => {
     setCart([])
   }
+
+  // --- 4. ELIMINAMOS LAS FUNCIONES addShipping y removeShipping ---
+  // (No se pueden añadir ni cambiar, como dijiste)
 
   const getTotalItems = () => {
     return cart.reduce((sum, item) => sum + item.quantity, 0)
   }
 
+  // --- 5. LÓGICA CLAVE EN getTotalPrice ---
   const getTotalPrice = () => {
-    return cart.reduce((sum, item) => sum + item.precio * item.quantity, 0)
+    const itemsTotal = cart.reduce((sum, item) => sum + item.precio * item.quantity, 0)
+    
+    // Si el total de artículos es 0, el precio total es 0.
+    // Si hay CUALQUIER artículo, se suma la tarifa fija de envío.
+    if (itemsTotal === 0) {
+      return 0
+    }
+
+    return itemsTotal + SHIPPING_FEE
   }
 
   return (
     <CartContext.Provider
+      // --- 6. AÑADIMOS LA TARIFA FIJA AL CONTEXTO ---
       value={{
         cart,
+        shippingFee: SHIPPING_FEE, // <-- Pasa la constante
         addToCart,
         removeFromCart,
         updateQuantity,

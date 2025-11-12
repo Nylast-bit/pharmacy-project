@@ -1,7 +1,9 @@
 "use client"
 
 import Image from "next/image"
-import { Mail, Phone, MapPin } from "lucide-react"
+import { Mail, Phone, MapPin,  } from "lucide-react"
+import { FaTelegramPlane, FaWhatsapp } from 'react-icons/fa';
+
 
 export default function Footer() {
   const scrollToSection = (id: string) => {
@@ -38,23 +40,23 @@ export default function Footer() {
             </h3>
             <div className="space-y-3">
               <a
-                href="mailto:info@pharmacy.com"
+                href="mailto:info@rxsolutionmeds.com"
                 className="flex items-center gap-3 hover:text-[#00d4e8] transition-colors"
               >
                 <Mail className="w-5 h-5 text-[#00d4e8]" />
-                <span>info@pharmacy.com</span>
+                <span>info@rxsolutionmeds.com</span>
               </a>
               <a
-                href="tel:+15551234567"
-                className="flex items-center gap-3 hover:text-[#00d4e8] transition-colors"
+                href=""
+                className="flex items-center gap-3 hover:text-sky-500 transition-colors transition-colors"
               >
-                <Phone className="w-5 h-5 text-[#00d4e8]" />
-                <span>+1 (555) 123-4567</span>
+                <FaTelegramPlane className="" />
+                <span>+1 (929) 706-5709</span>
               </a>
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-[#00d4e8] flex-shrink-0 mt-1" />
-                <span>123 Health Street, Medical District, NY 10001</span>
-              </div>
+              <a className="flex items-start gap-3 cursor-pointer hover:text-green-500" href="https://wa.link/04bu9d" >
+                <FaWhatsapp className=" transition-colors"/>
+                <span>+1 (929) 706-5709</span>
+              </a>
             </div>
           </div>
 
