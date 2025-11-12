@@ -3,10 +3,16 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: '216.245.184.30',
-        port: '', // Puerto 80, así que déjalo vacío
-        pathname: '/uploads/**', // Permite cualquier imagen dentro de /uploads/
+        protocol: 'http', // NOTA: Cambia esto a 'https' después de correr Certbot
+        hostname: 'rxsolutionmeds.com',
+        port: '',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http', // NOTA: Cambia esto a 'https' después de correr Certbot
+        hostname: 'www.rxsolutionmeds.com',
+        port: '',
+        pathname: '/uploads/**',
       },
     ],
   },
