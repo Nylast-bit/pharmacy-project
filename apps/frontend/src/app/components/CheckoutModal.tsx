@@ -21,7 +21,7 @@ interface CheckoutModalProps {
 }
 
 export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
-  const { cart, getTotalPrice, clearCart } = useCart()
+  const { cart, getTotalPrice, clearCart, shippingFee} = useCart()
 
   const [nombre, setNombre] = useState("")
   const [correo, setCorreo] = useState("")
@@ -101,7 +101,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id_cliente: customerId,
-          total: getTotalPrice(),
+          total: getTotalPrice() + shippingFee,
           estatus: "pending",
           notificado: false,
         }),
