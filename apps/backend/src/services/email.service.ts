@@ -3,7 +3,7 @@ import { AppError } from '../middlewares/errorHandler'; // Asumo que tienes tu A
 
 export class EmailService {
   private resend: Resend;
-  private fromDomain = 'noreply@rxsolutionmeds.com'; // Tu dominio verificado
+  private fromDomain = 'info@rxsolutionmeds.com'; // Tu dominio verificado
 
   constructor() {
     const apiKey = process.env.RESEND_API_KEY;

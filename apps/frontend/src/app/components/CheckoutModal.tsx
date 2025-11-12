@@ -79,7 +79,8 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
 
       let customerId = idCliente
 
-      // 🆕 Si no tenemos un cliente existente, lo creamos
+      // 1. CREAR O CONFIRMAR CLIENTE
+      // (Esta parte de tu lógica está perfecta)
       if (!customerId) {
         const resCustomer = await fetch(`${API_BASE_URL}/api/customers`, {
           method: "POST",
@@ -95,37 +96,47 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         customerId = customer.id_cliente
       }
 
-      // 2️⃣ Crear orden
+      // --- ¡AQUÍ ESTÁ EL GRAN CAMBIO! ---
+      // 2. PREPARAR EL BODY ÚNICO PARA EL BACKEND
+      // Tal como lo definimos en tu OrderService.ts
+      
+      const orderDataForBackend = {
+        orderData: {
+          id_cliente: customerId,
+        },
+        orderDetails: cart.map((item) => ({
+          id_producto: item.id_producto,
+          cantidad: item.quantity,
+          precio_unitario: item.precio,
+        })),
+      }
+
+      // 3. HACER LA ÚNICA LLAMADA AL BACKEND
+      // Esta es la única 'fetch' que necesitamos para crear el pedido.
+      // El backend se encargará de todo:
+      // - Crear el pedido
+      // - Añadir los productos
+      // - Añadir la fila del envío
+      // - Calcular el total y actualizar el pedido
+      
       const resOrder = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_cliente: customerId,
-          total: getTotalPrice() + shippingFee,
-          estatus: "pending",
-          notificado: false,
-        }),
+        body: JSON.stringify(orderDataForBackend), // <-- ¡Enviamos el body unificado!
       })
 
-      if (!resOrder.ok) throw new Error("Error creating order")
-      const order = await resOrder.json()
+      if (!resOrder.ok) {
+         // Si el backend da un error 500 o 400, lo capturamos
+        const errorData = await resOrder.json();
+        throw new Error(errorData.message || "Error creating order");
+      }
+      
+      const order = await resOrder.json();
 
-      // 3️⃣ Crear detalles de la orden
-      await fetch(`${API_BASE_URL}/api/order-details/multiple`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_pedido: order.id_pedido,
-          details: cart.map((item) => ({
-            id_producto: item.id_producto,
-            cantidad: item.quantity,
-            precio_unitario: item.precio,
-          })),
-        }),
-      })
-
-      setOrderNumber(order.id_pedido)
+      // 4. ¡ÉXITO!
+      setOrderNumber(order.id_pedido) // order.id_pedido viene del 'RETURNING *' del backend
       clearCart()
+
     } catch (err: any) {
       setError(err.message || "Error placing order")
     } finally {
@@ -133,7 +144,6 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     }
   }
 
-  // Confirmar cliente existente
   const confirmExisting = () => {
     if (possibleCustomer) {
       setNombre(possibleCustomer.nombre)
@@ -144,7 +154,6 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     }
     setShowDialog(false)
   }
-
   if (!isOpen) return null
 
   return (
