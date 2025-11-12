@@ -1,6 +1,7 @@
-import { Pool } from 'pg'
+import { Pool, types } from 'pg'
 import dotenv from 'dotenv'
 
+types.setTypeParser(1700, (val) => parseFloat(val))
 // Carga las variables de entorno del archivo .env
 dotenv.config()
 
