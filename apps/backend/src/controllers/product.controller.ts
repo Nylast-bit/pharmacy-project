@@ -111,13 +111,5 @@ export class ProductController {
     }
   }
 
-  async findLowStock(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { threshold = 10 } = req.query
-      const products = await productService.findLowStock(Number(threshold))
-      res.json(products)
-    } catch (error) {
-      next(error)
-    }
-  }
+  
 }
