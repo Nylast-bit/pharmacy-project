@@ -204,7 +204,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                   Order Placed Successfully!
                 </h3>
                 <p className="text-gray-600">
-                  Thank you for your purchase. We'll send you a confirmation email shortly.
+                  Thank you for your purchase. We'll send you a confirmation email shortly. We will be contacting you to finalize your order process.
                 </p>
               </div>
 

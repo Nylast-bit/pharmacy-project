@@ -103,6 +103,18 @@ export default function ProductList() {
 
   return (
     <div ref={containerRef} className="flex flex-col items-center py-12">
+      {/* 🔹 Shipping & Payment Info */}
+        <div className="mb-12 text-center">
+          <h2 className="text-2xl md:text-3xl font-semibold text-[#00a2b9] mb-2">
+            Shipping & Payment Information
+          </h2>
+          <p className="text-gray-700 text-lg">
+            Orders are shipped via <strong>FEDEX</strong> and <strong>USPS</strong>.
+          </p>
+          <p className="text-gray-700 text-lg">
+            Accepted payment methods: <strong>ZELLE</strong>, <strong>CASHAPP</strong>, <strong>BITCOIN</strong>, and <strong>MONEY ORDER</strong>.
+          </p>
+        </div>
       <h2 id="product-list-top" className="text-4xl font-bold mb-8">Our Products</h2>
 
       {/* Search Bar */}
