@@ -16,9 +16,10 @@ const nextConfig = {
       },
     ],
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  allowedDevOrigins: [
+    'http://64.111.92.96:3000', // Tu IP de red
+    'http://localhost:3000',    // Localhost estándar
+  ],  
   typescript: {
     ignoreBuildErrors: true,
   },
