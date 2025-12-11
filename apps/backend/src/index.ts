@@ -26,7 +26,7 @@ app.use('/api/email', emailRoutes)
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() })
+  res.json({ status: 'OK', timestamp: new Date().toISOString() })
 })
 
 // Error handler
@@ -34,11 +34,12 @@ app.use(errorHandler)
 
 // 404
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' })
+  res.status(404).json({ error: 'Route not found' })
 })
 
-const PORT = process.env.PORT || 4000
+// === CAMBIO CRÍTICO: Asegurar que PORT es de tipo 'number' ===
+const PORT_NUMBER = Number(process.env.PORT) || 4000
 
-app.listen(PORT, () => {
-  console.log(`✅ Backend running on http://localhost:${PORT}`)
+app.listen(PORT_NUMBER, "0.0.0.0", () => {
+  console.log(`✅ Backend running on http://0.0.0.0:${PORT_NUMBER}`)
 })
