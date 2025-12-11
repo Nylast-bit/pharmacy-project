@@ -10,7 +10,7 @@ import WhyChooseUs from "./components/WhyChooseUs"
 import ContactForm from "./components/ContactForm"
 import Footer from "./components/Footer"
 
-export default function Home() {
+function Home() {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
@@ -45,3 +45,6 @@ export default function Home() {
     </>
   )
 }
+
+export default Home;
+

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 const HASHED_PASSWORD = "$2b$10$92fGgm/u1P77MnGkdaJcJuKqUY5VodFlJW.XB4fpaixu0XcwznBbC"; 
 
-export default function AdminLogin() {
+function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -64,3 +64,5 @@ export default function AdminLogin() {
     </div>
   );
 }
+
+export default AdminLogin;

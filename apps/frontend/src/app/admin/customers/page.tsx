@@ -425,4 +425,4 @@ Nombre: ${customer.nombre}
   )
 }
 
-export default CustomersPage
+export default CustomersPage;

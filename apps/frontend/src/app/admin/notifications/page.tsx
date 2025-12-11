@@ -34,7 +34,7 @@ interface CustomerWithPromo {
 
 
 
-export default function NotificationsPage() {
+function NotificationsPage() {
   // --- Estados de Datos ---
   const [customers, setCustomers] = useState<CustomerWithPromo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -721,3 +721,4 @@ export default function NotificationsPage() {
   );
 }
 
+export default NotificationsPage;

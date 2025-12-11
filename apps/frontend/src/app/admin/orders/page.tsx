@@ -42,7 +42,7 @@ interface OrderDetail {
 }
 
 // --- Main Component ---
-export default function OrdersPage() {
+function OrdersPage() {
   // --- Component State ---
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -503,4 +503,4 @@ export default function OrdersPage() {
     </div>
   )
 }
-
+export default OrdersPage;

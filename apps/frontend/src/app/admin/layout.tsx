@@ -8,7 +8,7 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+function AdminLayout({ children }: AdminLayoutProps) {
   const [authenticated, setAuthenticated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -40,3 +40,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     </div>
   );
 }
+
+export default  AdminLayout;
+

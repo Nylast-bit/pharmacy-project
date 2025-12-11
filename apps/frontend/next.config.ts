@@ -3,26 +3,23 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https', // NOTA: Cambia esto a 'https' después de correr Certbot
+        protocol: 'https',
         hostname: 'rxsolutionmeds.com',
         port: '',
         pathname: '/uploads/**',
       },
       {
-        protocol: 'https', // NOTA: Cambia esto a 'https' después de correr Certbot
+        protocol: 'https',
         hostname: 'www.rxsolutionmeds.com',
         port: '',
         pathname: '/uploads/**',
       },
     ],
   },
-  allowedDevOrigins: [
-    'http://64.111.92.96:3000', // Tu IP de red
-    'http://localhost:3000',    // Localhost estándar
-  ],  
+  
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true, 
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

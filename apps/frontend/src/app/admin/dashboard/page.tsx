@@ -15,7 +15,7 @@ interface SalesData {
   total: number;
 }
 
-export default function DashboardPage() {
+function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({ orders: 0, products: 0, customers: 0 });
   const [salesData, setSalesData] = useState<SalesData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,3 +109,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+export default DashboardPage;
