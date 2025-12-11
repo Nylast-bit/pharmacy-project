@@ -22,7 +22,7 @@ interface Order {
   notificado: boolean
 }
 
-export default function CustomersPage() {
+function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -424,3 +424,5 @@ Nombre: ${customer.nombre}
     </div>
   )
 }
+
+export default CustomersPage
