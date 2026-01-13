@@ -1,0 +1,15 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/customers/page": "/admin/customers",
+  "/admin/dashboard/page": "/admin/dashboard",
+  "/admin/login/page": "/admin/login",
+  "/admin/notifications/page": "/admin/notifications",
+  "/admin/orders/page": "/admin/orders",
+  "/admin/page": "/admin",
+  "/admin/products/page": "/admin/products",
+  "/admin/settings/page": "/admin/settings",
+  "/api/verify-admin/route": "/api/verify-admin",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
+}
